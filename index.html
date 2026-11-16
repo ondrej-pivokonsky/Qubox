@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qubox</title>
+<meta name="theme-color" content="#030207">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Qubox">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#030207;--card:#0a1020;--card2:#0f1730;--line:#1c2a4d;--txt:#f4f7fd;--mut:#b8c4dc;--cy:#6ff2ff;--pk:#ff5fdc;--ok:#5dffa8;--warn:#ffb347;--red:#ff7a7a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px}
+body{min-height:100vh;background:radial-gradient(circle at 50% -15%,#0f1a36 0,transparent 55%),var(--bg)}
+.wrap{max-width:540px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 96px)}
+/* hero */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 0 14px}
+.avatar{width:96px;height:96px;border-radius:28px;box-shadow:0 0 34px #ff1f3d40,0 0 0 1px #1c2a4d}
+.avatar svg{width:100%;height:100%;display:block}
+.brand{margin-top:10px;font-size:13px;letter-spacing:6px;font-weight:800;color:#ff5a6e}
+.hi{font-size:22px;font-weight:800;margin-top:2px}
+.date{color:var(--mut);font-size:14px;margin-top:2px;text-transform:capitalize}
+.say{margin:12px 0 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;color:var(--txt);width:100%}
+/* rank strip */
+.rstrip{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0c1430,#170c2c);border:1px solid #2b2556;border-radius:18px;padding:12px;margin:14px 0}
+.rstrip .bd{width:58px;height:58px;flex:none}
+.rstrip .nm{font-weight:800;font-size:18px}
+.rstrip .sm{color:var(--mut);font-size:13px;margin-top:2px}
+.bar{height:8px;background:#060a16;border-radius:8px;overflow:hidden;margin-top:7px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pk));transition:width .5s}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 6px;text-align:center}
+.stat b{display:block;font-size:22px;color:var(--cy)}
+.stat span{font-size:12px;color:var(--mut)}
+h2{font-size:14px;letter-spacing:1.5px;text-transform:uppercase;margin:18px 0 10px;color:var(--mut);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.pill{font-size:12px;padding:3px 9px;border-radius:20px;border:1px solid var(--line);color:var(--txt);letter-spacing:0;text-transform:none}
+/* quests */
+.q{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c,#6ff2ff);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.q .top{display:flex;gap:12px;align-items:center;padding:13px 12px;cursor:pointer;user-select:none}
+.q .top:active{background:#0e1630}
+.q .ic{font-size:24px;width:34px;text-align:center;flex:none}
+.q .t{flex:1;font-size:15.5px;line-height:1.4;color:var(--txt)}
+.q .cat{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;color:var(--c)}
+.chk{width:28px;height:28px;border-radius:50%;border:2px solid #34466f;flex:none;display:grid;place-items:center;font-size:15px;font-weight:900}
+.q.done{background:#08180f;border-color:#1f5a3c}
+.q.done .t{text-decoration:line-through;color:#9fb1a6}
+.q.done .chk{background:var(--ok);border-color:var(--ok);color:#03210f}
+.q .tools{display:flex;gap:8px;padding:0 12px 10px 58px;align-items:center}
+.q .tools button{flex:none;font-size:13px;padding:6px 10px}
+.q .pt{font-size:12px;color:var(--mut);margin-left:auto}
+.q textarea{display:none;margin:0 12px 12px;width:calc(100% - 24px)}
+.q.open textarea{display:block}
+.notePrev{font-size:13px;color:var(--cy);padding:0 12px 10px 58px;white-space:pre-wrap;line-height:1.4}
+/* inputs */
+button{font:inherit;border:1px solid var(--line);background:var(--card2);color:var(--txt);border-radius:12px;padding:10px 14px;cursor:pointer}
+button:disabled{opacity:.4}
+button.primary{background:linear-gradient(90deg,#0b7ea0,#a0248c);border:0;font-weight:700}
+button.danger{border-color:#5a1f2a;color:var(--red)}
+textarea,input[type=text]{font:inherit;font-size:15px;background:#060a16;color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;outline:none}
+textarea:focus,input:focus{border-color:var(--cy)}
+textarea{min-height:80px;resize:vertical;line-height:1.45}
+/* tabs */
+.tab{display:none}.tab.on{display:block}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(5,8,18,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:8px 6px calc(env(safe-area-inset-bottom) + 8px);z-index:5}
+nav .in{display:flex;max-width:540px;width:100%}
+nav button{flex:1;background:none;border:0;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:4px 0;font-weight:600}
+nav button b{font-size:21px}
+nav button.on{color:var(--cy)}
+/* ranks */
+.rk{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:10px}
+.rk .bd{width:72px;height:72px;flex:none}
+.rk .nm{font-weight:800;font-size:17px}
+.rk .sm{font-size:13px;color:var(--mut);margin-top:3px}
+.rk.lock .nm,.rk.lock .sm{opacity:.7}.rk.lock .bd{filter:saturate(.55) brightness(.8)}
+.rk.me{border-color:var(--pk);box-shadow:0 0 22px #ff5fdc30}
+.tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;background:var(--pk);color:#1a0216;margin-left:6px;vertical-align:middle}
+/* settings */
+.set{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.set .lb{font-weight:700;margin-bottom:4px}
+.set .ds{font-size:13px;color:var(--mut);margin-bottom:10px;line-height:1.4}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg button{padding:10px 4px;font-size:13px;text-align:center}
+.seg button.on{background:#0e2a3a;border-color:var(--cy);color:var(--cy);font-weight:800}
+.seg button small{display:block;font-size:11px;color:var(--mut);font-weight:500}
+.hist .row{display:flex;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:1px solid var(--line);color:var(--mut)}
+.hist .row b{color:var(--txt)}
+.dnote{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.dnote .d{font-size:12px;color:var(--cy);font-weight:700;text-transform:capitalize;margin-bottom:6px}
+.dnote .x{white-space:pre-wrap;font-size:14.5px;line-height:1.45}
+.dnote .qn{font-size:13px;color:var(--mut);margin-top:6px;white-space:pre-wrap}
+.empty{color:var(--mut);font-size:14px;text-align:center;padding:20px 0}
+.saved{font-size:12px;color:var(--ok);height:16px;margin-top:4px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 90px);transform:translateX(-50%) translateY(200px);background:var(--ok);color:#03210f;font-weight:800;padding:10px 18px;border-radius:30px;transition:transform .3s;z-index:9;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.modal{position:fixed;inset:0;background:#000c;display:none;place-items:center;z-index:10;padding:20px}
+.modal.show{display:grid}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;max-width:360px;text-align:center}
+.modal .box .bd{width:120px;height:120px;margin:0 auto 8px}
+.pulse{animation:pu 2.6s ease-in-out infinite}@keyframes pu{0%,100%{opacity:1}50%{opacity:.55}}
+.keybtn{position:absolute;top:calc(env(safe-area-inset-top) + 14px);right:16px;width:42px;height:42px;border-radius:14px;padding:0;font-size:20px;background:var(--card);z-index:3}
+.wallet{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1a1405,#0c0a14);border:1px solid #4a3a12;border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.wallet b{font-size:24px;color:#ffd36b}.wallet span{color:var(--mut);font-size:13px}
+.charBig{width:230px;height:276px;margin:4px auto 10px;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 0 40px #ff1f3d22}
+.charBig svg,.it svg{width:100%;height:100%;display:block}
+.slots{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none}
+.slots::-webkit-scrollbar{display:none}
+.slots button{flex:none;padding:8px 11px;font-size:13px;border-radius:20px}
+.slots button.on{background:#2a0a16;border-color:#ff1f3d;color:#fff;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.it{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;position:relative}
+.it .pv{aspect-ratio:200/240}
+.it .nm{font-size:12px;font-weight:700;padding:6px 6px 0;line-height:1.25;min-height:30px}
+.it .pr{font-size:12px;padding:2px 6px 7px;color:#ffd36b;font-weight:700}
+.it.own .pr{color:var(--ok)}.it.eq{border-color:#ff1f3d;box-shadow:0 0 14px #ff1f3d44}
+.it.lock .pv{filter:grayscale(.8) brightness(.55)}.it.lock .pr{color:var(--mut)}
+.boss{background:linear-gradient(135deg,#2a0610,#0e0414);border:1px solid #6a1228;border-radius:18px;padding:14px;margin-bottom:12px;cursor:pointer;user-select:none}
+.boss .h{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900;letter-spacing:2px;color:#ff5a6e}
+.boss .t{font-size:16px;line-height:1.4;margin:6px 0 4px;font-weight:600}
+.boss .s{font-size:13px;color:var(--mut)}
+.boss.done{background:#08180f;border-color:#1f5a3c}.boss.done .t{text-decoration:line-through;color:#9fb1a6}
+.install{margin-top:16px;font-size:13px;color:var(--mut);line-height:1.5;background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:12px}
+</style>
+</head>
+<body>
+<div class="wrap" style="position:relative">
+<button class="keybtn" id="keyBtn" title="Tajný kód">🔑</button>
+
+<section class="tab on" id="t-dnes">
+ <div class="hero">
+  <div class="avatar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<defs>
+<radialGradient id="lbg" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#3a0618"/><stop offset=".6" stop-color="#14030b"/><stop offset="1" stop-color="#040106"/></radialGradient>
+<linearGradient id="hood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1838"/><stop offset="1" stop-color="#0c0612"/></linearGradient>
+<linearGradient id="crw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b5466"/><stop offset="1" stop-color="#1b1622"/></linearGradient>
+<linearGradient id="pau" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a4256"/><stop offset="1" stop-color="#120d18"/></linearGradient>
+<radialGradient id="void" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#1a0410"/><stop offset="1" stop-color="#000"/></radialGradient>
+<filter id="rg" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="mist"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<rect width="200" height="200" rx="44" fill="url(#lbg)"/>
+<g filter="url(#mist)" opacity=".55"><ellipse cx="100" cy="120" rx="70" ry="50" fill="#8a0a2a"/></g>
+<g fill="#ff2a4a" opacity=".5"><circle cx="30" cy="40" r="1.5"/><circle cx="170" cy="56" r="1.2"/><circle cx="160" cy="30" r="1"/><circle cx="40" cy="150" r="1.2"/><circle cx="20" cy="96" r="1"/></g>
+<!-- shoulders -->
+<path d="M18 200 C22 162 44 148 70 142 L130 142 C156 148 178 162 182 200Z" fill="url(#hood)"/>
+<path d="M24 172 L10 150 L40 156 L56 144 C40 150 30 160 24 172Z" fill="url(#pau)" stroke="#6b6278" stroke-width="1"/>
+<path d="M176 172 L190 150 L160 156 L144 144 C160 150 170 160 176 172Z" fill="url(#pau)" stroke="#6b6278" stroke-width="1"/>
+<path d="M30 170 Q44 150 66 146 L60 166Z" fill="#2b2433" stroke="#5b5466"/>
+<path d="M170 170 Q156 150 134 146 L140 166Z" fill="#2b2433" stroke="#5b5466"/>
+<!-- hood -->
+<path d="M100 32 C140 32 158 66 156 104 C155 130 146 150 132 162 L100 172 L68 162 C54 150 45 130 44 104 C42 66 60 32 100 32Z" fill="url(#hood)" stroke="#4b3a5c" stroke-width="1.5"/>
+<path d="M100 46 C128 46 140 74 138 104 C136 128 124 146 100 154 C76 146 64 128 62 104 C60 74 72 46 100 46Z" fill="url(#void)"/>
+<!-- crown -->
+<path d="M62 64 L56 22 L74 50 L82 14 L92 46 L100 6 L108 46 L118 14 L126 50 L144 22 L138 64 Q100 52 62 64Z" fill="url(#crw)" stroke="#8a8296" stroke-width="1.2"/>
+<path d="M64 62 Q100 50 136 62 L136 68 Q100 57 64 68Z" fill="#3a3344" stroke="#8a8296" stroke-width=".8"/>
+<path d="M100 50 L106 58 L100 66 L94 58Z" fill="#ff1f3d" filter="url(#rg)"/>
+<!-- eyes -->
+<g filter="url(#rg)">
+<path d="M74 100 L94 104 L92 109 L76 106Z" fill="#ff2a3a"/>
+<path d="M126 100 L106 104 L108 109 L124 106Z" fill="#ff2a3a"/>
+</g>
+<path d="M78 103 L91 105.5" stroke="#ffd0d6" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M122 103 L109 105.5" stroke="#ffd0d6" stroke-width="1.2" stroke-linecap="round"/>
+<!-- faint jaw plate -->
+<path d="M84 126 Q100 134 116 126 L112 140 Q100 146 88 140Z" fill="#120a18" stroke="#3a2e48"/>
+<g stroke="#ff2a4a" stroke-opacity=".5" stroke-width="1"><path d="M92 132v8M100 134v8M108 132v8"/></g>
+<!-- clasp -->
+<circle cx="100" cy="172" r="7" fill="#2b2433" stroke="#8a8296"/><circle cx="100" cy="172" r="3" fill="#ff1f3d" filter="url(#rg)"/>
+</svg>
+</div>
+  <div class="brand">QUBOX</div>
+  <div class="hi" id="hi">Ahoj!</div>
+  <div class="date" id="date"></div>
+  <div class="say" id="say"></div>
+ </div>
+ <div class="rstrip" id="rstrip"></div>
+ <div class="stats">
+  <div class="stat"><b id="sToday">0</b><span>dnes bodů</span></div>
+  <div class="stat"><b id="sTotal">0</b><span>💰 k utracení</span></div>
+  <div class="stat"><b id="sStreak">0</b><span>🔥 série dní</span></div>
+ </div>
+ <div class="boss" id="boss"></div>
+ <h2><span>Dnešní sidequesty</span><span class="pill" id="diffPill"></span></h2>
+ <div id="list"></div>
+ <button id="reroll" style="width:100%">🎲 Vyměnit 1 nesplněný quest (zbývá <span id="rr">1</span>)</button>
+ <h2><span>📝 Poznámky ke dni</span></h2>
+ <textarea id="dayNote" placeholder="Jak šly dnešní questy? Co bylo nejtěžší? Kolik kliků jsi dal?"></textarea>
+ <div class="saved" id="dnSaved"></div>
+</section>
+
+<section class="tab" id="t-postava">
+ <div class="charBig" id="charBig"></div>
+ <div class="wallet"><div><span>Tvoje body k utracení</span><br><b id="wal">0</b> <span>bodů</span></div><div style="text-align:right"><span>Za 1 quest</span><br><b style="font-size:16px;color:var(--ok)">+10</b></div></div>
+ <div class="slots" id="slots"></div>
+ <div class="grid" id="grid"></div>
+</section>
+
+<section class="tab" id="t-ranky">
+ <h2><span>Ranky</span><span class="pill" id="rkCount"></span></h2>
+ <div id="ranks"></div>
+</section>
+
+<section class="tab" id="t-denik">
+ <h2><span>Deník</span></h2>
+ <div class="hist" id="hist" style="margin-bottom:16px"></div>
+ <h2><span>Všechny poznámky</span></h2>
+ <div id="notes"></div>
+</section>
+
+<section class="tab" id="t-nast">
+ <h2><span>Nastavení</span></h2>
+ <div class="set" style="border-color:#6a1228;background:linear-gradient(135deg,#1a0610,#0a1020)">
+  <div class="lb">📲 Přidat na plochu / Stáhnout</div>
+  <div class="ds" id="instHint">Dej si Qubox na plochu jako aplikaci – s ikonou temného lorda.</div>
+  <button class="primary" id="instBtn" style="width:100%;margin-bottom:8px">📲 Přidat Qubox na plochu</button>
+  <div style="display:flex;gap:8px"><button id="copyLink" style="flex:1">🔗 Kopírovat odkaz</button><button id="dlBtn" style="flex:1">⬇️ Stáhnout soubor</button></div>
+ </div>
+ <div class="set">
+  <div class="lb">Obtížnost</div>
+  <div class="ds">Mění počty u silových a běhových questů (kliky, dřepy, minuty, kilometry). Body za quest zůstávají 10.</div>
+  <div class="seg" id="diffSeg"></div>
+ </div>
+ <div class="set">
+  <div class="lb">Kategorie</div>
+  <div class="ds">Vypni, co nechceš. Questy se rozdělí rovnoměrně mezi zapnuté kategorie. Změna platí od zítřka, nebo hned tlačítkem níž.</div>
+  <div class="seg" id="catSeg"></div>
+ </div>
+ <div class="set">
+  <div class="lb">Počet questů denně</div>
+  <div class="ds">Kolik sidequestů chceš dostávat každý den.</div>
+  <div class="seg" id="cntSeg"></div>
+ </div>
+ <div class="set">
+  <div class="lb">Tvoje jméno</div>
+  <div class="ds">Qubox tě bude zdravit jménem.</div>
+  <input type="text" id="name" maxlength="24" placeholder="Např. Ondra">
+ </div>
+ <div class="set">
+  <div class="lb">Výměny questů za den</div>
+  <div class="ds">Kolikrát si můžeš denně vyměnit quest za jiný.</div>
+  <div class="seg" id="rrSeg"></div>
+ </div>
+ <div class="set">
+  <div class="lb">Dnešní questy</div>
+  <div class="ds">Vygeneruje dnešní nesplněné questy znovu podle aktuálního nastavení. Splněné zůstanou.</div>
+  <button class="primary" id="regen" style="width:100%">⚡ Použít nastavení hned</button>
+ </div>
+ <div class="set">
+  <div class="lb">Tajný kód</div>
+  <div class="ds">Máš kód? Zadej ho přes 🔑 vpravo nahoře na kartě Dnes.</div>
+  <button id="keyBtn2" style="width:100%">🔑 Zadat kód</button>
+ </div>
+ <div class="set">
+  <div class="lb">Smazat všechno</div>
+  <div class="ds">Vynuluje body, ranky, postavičku i poznámky. Nejde vrátit.</div>
+  <button class="danger" id="wipe" style="width:100%">Smazat všechna data</button>
+ </div>
+ 
+</section>
+
+</div>
+<nav><div class="in">
+ <button data-t="dnes" class="on"><b>⚡</b>Dnes</button>
+ <button data-t="postava"><b>🧍</b>Postava</button>
+ <button data-t="ranky"><b>🏅</b>Ranky</button>
+ <button data-t="denik"><b>📓</b>Deník</button>
+ <button data-t="nast"><b>⚙️</b>Nastavení</button>
+</div></nav>
+<div class="toast" id="toast"></div>
+<div class="modal" id="modal"><div class="box" id="mbox"></div></div>
+
+<script>
+const POOL=[["💪", "Síla", "Udělej #50 kliků během dne (rozděl si je, jak chceš)."], ["💪", "Síla", "Udělej #100 dřepů během dne."], ["💪", "Síla", "Vydrž v planku #2 minuty v kuse."], ["💪", "Síla", "Udělej #30 kliků bez přestávky – co nedáš, dodělej na kolenou."], ["💪", "Síla", "Vydrž #2 minuty ve sedu u zdi."], ["💪", "Síla", "Udělej #25 angličáků (burpees)."], ["💪", "Síla", "3 série: #15 výpadů na každou nohu."], ["💪", "Síla", "Udělej #15 diamantových kliků (ruce u sebe)."], ["💪", "Síla", "Udělej #10 kliků pokaždé, když ti přijde zpráva (max #100)."], ["💪", "Síla", "3 kola: #20 dřepů s výskokem + #20 kliků."], ["💪", "Síla", "3 série: #1 minuta horolezců naplno."], ["💪", "Síla", "Pistolový dřep: #5 na každou nohu (klidně s oporou)."], ["💪", "Síla", "Hollow hold: 3 série po #30 sekundách."], ["💪", "Síla", "Každou hodinu dne udělej #10 kliků nebo #15 dřepů."], ["💪", "Síla", "Hoď si mincí: panna = #40 kliků, orel = #80 dřepů. Mince rozhoduje, ty posloucháš."], ["💪", "Síla", "Reklamní pauza: při každé reklamě/přechodu videa dělej dřepy, dokud neskončí."], ["💪", "Síla", "Kliky podle abecedy: za každé písmeno tvého celého jména #3 kliky."], ["💪", "Síla", "Zrcadlová výzva: udělej #20 kliků a #20 dřepů před zrcadlem a dívej se si do očí."], ["💪", "Síla", "Hra na sochu: #5× za den zamrzni v dřepu na #30 sekund, ať jsi kdekoli."], ["💪", "Síla", "Schod/obrubník: #50 výstupů na každou nohu."], ["💪", "Síla", "Žabí skoky: #20 skoků co nejdál."], ["💪", "Síla", "Medvědí chůze #1 minuta + krabí chůze #1 minuta."], ["💪", "Síla", "Kliky s tleskáním: #10 (nebo #20 kliků s výbušným odrazem)."], ["💪", "Síla", "Pyramida kliků: 1-2-3-4-5-4-3-2-1 s krátkou pauzou."], ["💪", "Síla", "Udělej #30 kliků a #30 dřepů hned teď, než to dočteš."], ["💪", "Síla", "Když zazvoní telefon / budík, dej #10 angličáků."], ["🗣️", "Sociální", "Zeptej se cizího člověka, jaký je jeho nejoblíbenější film, a proč."], ["🗣️", "Sociální", "Zeptej se někoho staršího na nejlepší radu, kterou kdy dostal."], ["🗣️", "Sociální", "Zavolej (ne napiš!) někomu, s kým jsi dlouho nemluvil."], ["🗣️", "Sociální", "Zeptej se kamaráda: „Co bys dělal, kdybys věděl, že nemůžeš selhat?“"], ["🗣️", "Sociální", "Vyzvi kamaráda na souboj v klicích. Kdo dá víc?"], ["🗣️", "Sociální", "Zeptej se cizího člověka: „Kdybyste byl zelenina, jaká byste byl?“"], ["🗣️", "Sociální", "Napiš někomu, proč si ho vážíš – konkrétně."], ["🗣️", "Sociální", "Začni rozhovor s někým, s kým jsi nikdy nemluvil."], ["🗣️", "Sociální", "Zeptej se rodičů/prarodičů, jak se poznali."], ["🗣️", "Sociální", "Pozvi někoho na procházku nebo trénink."], ["🗣️", "Sociální", "Mise špion: zjisti od 3 lidí jejich nejoblíbenější jídlo, aniž by poznali, že je to úkol."], ["🗣️", "Sociální", "Zeptej se někoho: „Jakou superschopnost bys chtěl a proč?“"], ["🗣️", "Sociální", "Vymysli s kamarádem tajný pozdrav a použijte ho."], ["🗣️", "Sociální", "Zeptej se cizího člověka na doporučení – jídlo, místo nebo písničku – a vyzkoušej ho."], ["🗣️", "Sociální", "Zeptej se někoho, co by ho naučilo jeho dětské já."], ["🗣️", "Sociální", "Udělej někomu den: napiš mu 3 věci, které na něm obdivuješ."], ["🗣️", "Sociální", "Zeptej se někoho staršího, jaký byl svět, když mu bylo jako tobě."], ["🗣️", "Sociální", "Domluv se s kamarádem na společné výzvě na celý týden."], ["🗣️", "Sociální", "Zeptej se v obchodě/kavárně, co je jejich nejlepší věc, a objednej si to."], ["🗣️", "Sociální", "Zeptej se někoho: „Na co jsi letos nejvíc hrdý?“ a pak řekni svoje."], ["😨", "Strach", "Studená sprcha 1 minuta. Žádné vymlouvání."], ["😨", "Strach", "Řekni nahlas před lidmi svůj názor, i když s ním ostatní nesouhlasí."], ["😨", "Strach", "Zeptej se v obchodě na slevu – i když víš, že ji nemají."], ["😨", "Strach", "Natoč se na video a řekni 1 minutu o sobě. Pak si to pusť."], ["😨", "Strach", "Přiznej někomu chybu, kterou jsi udělal."], ["😨", "Strach", "Řekni „ne“ na něco, na co bys normálně kývl."], ["😨", "Strach", "Zeptej se na něco ve třídě/práci, i když se bojíš, že je to hloupá otázka."], ["😨", "Strach", "Hodinu bez telefonu (Qubox se nepočítá 😉)."], ["😨", "Strach", "Jdi sám na místo, kam bys normálně sám nešel (kavárna, park, kino)."], ["😨", "Strach", "Udělej 10 kliků na veřejném místě."], ["😨", "Strach", "Zatancuj 30 sekund na ulici. Bez hudby."], ["😨", "Strach", "Zavolej tam, kam se ti nechce volat (doktor, úřad, firma)."], ["😨", "Strach", "Ozvi se jako první po hádce nebo dlouhé pauze."], ["😨", "Strach", "Požádej někoho o pomoc s něčím, co bys normálně dělal sám."], ["😨", "Strach", "Napiš si 3 věci, kterých se bojíš. U jedné udělej dnes první malý krok."], ["😨", "Strach", "Pusť si nahlas písničku a zpívej celý refrén, i když tě někdo slyší."], ["😨", "Strach", "Ozvi se jako první ve skupině – navrhni plán nebo hru."], ["😨", "Strach", "Sněz nebo ochutnej jídlo, které ti normálně nechutná."], ["😨", "Strach", "Zeptej se cizího člověka, jestli by tě vyfotil – a usmívej se."], ["😨", "Strach", "Řekni někomu do očí, co tě trápí – klidně a na rovinu."], ["😨", "Strach", "Přihlas se na něco nového: kroužek, trénink, soutěž."], ["😨", "Strach", "Mluv 2 minuty před zrcadlem jako motivační řečník – nahlas."], ["😨", "Strach", "Celý den nepoužívej žádné výmluvy. Řekneš „nestihl jsem“? = 10 dřepů."], ["😨", "Strach", "Udělej rozhodnutí, které odkládáš. Dnes."], ["🏃", "Běh", "Uběhni #2 km v klidném tempu."], ["🏃", "Běh", "Uběhni #3 km – je jedno jak rychle, hlavně neskončit."], ["🏃", "Běh", "Běhej #20 minut bez zastavení."], ["🏃", "Běh", "Intervaly: #8× 30 s sprint + 1 min chůze."], ["🏃", "Běh", "Sprinty: #10× 50 metrů naplno."], ["🏃", "Běh", "Uběhni #1 km co nejrychleji a zapiš si čas do poznámky."], ["🏃", "Běh", "Běh do kopce: #6× vyběhni kopec, dolů jdi."], ["🏃", "Běh", "Uběhni #5 km (klidně s chůzí mezi)."], ["🏃", "Běh", "Běž ráno před snídaní aspoň #15 minut."], ["🏃", "Běh", "Běhej #25 minut v tempu, kdy ještě zvládneš mluvit."], ["🏃", "Běh", "Sprint 100 m a pak #10 kliků – #5 kol."], ["🏃", "Běh", "Lampový fartlek: #20 min běhu – od lampy k lampě sprint, další jen klus."], ["🏃", "Běh", "Honička se stínem: běž #15 minut tak, aby tě tvůj stín nikdy nepředběhl 😄"], ["🏃", "Běh", "Průzkumník: uběhni #2 km ulicemi, kterými jsi nikdy neběžel."], ["🏃", "Běh", "Negativní split: #3 km, každý další kilometr rychleji než předchozí."], ["🏃", "Běh", "Běh s písničkami: #5 písniček – při refrénu sprint, jinak klus."], ["🏃", "Běh", "Kreslení GPS: naběhej trasu ve tvaru písmene nebo obrázku (aspoň #2 km)."], ["🏃", "Běh", "Zastávky: každých #500 metrů zastav a dej #10 dřepů. Celkem #3 km."], ["🏃", "Běh", "Běž tak dlouho, jak vydržíš. Čas si zapiš a příště ho překonej."], ["🏃", "Běh", "Schody: #10× vyběhni schody (nebo kopec) a dolů jdi."]];
+const BOSS=["BOSS: #100 kliků, #100 dřepů a #100 sklapovaček během jednoho dne.", "BOSS: Uběhni #5 km a hned potom dej #50 kliků.", "BOSS: #50 angličáků (burpees) na čas. Čas zapiš do poznámky.", "BOSS: Celý den bez telefonu kromě volání. Večer napiš, jaké to bylo.", "BOSS: Studená sprcha #3 minuty v kuse.", "BOSS: Plank #5 minut celkem – rozděl jak chceš, ale bez kolen.", "BOSS: Promluv s 5 cizími lidmi během jednoho dne.", "BOSS: Murph light – #1 km běh, #50 kliků, #100 dřepů, #1 km běh.", "BOSS: Vstaň o hodinu dřív a hned ráno dej #20 minut běhu.", "BOSS: Udělej věc, které se bojíš nejvíc z tvého seznamu strachů.", "BOSS: #300 dřepů během dne. Ano, tři sta.", "BOSS: Tabata 4 kola: kliky, dřepy, horolezci, angličáky (20 s naplno / 10 s pauza)."];
+// ===== Postavička: vrstvy SVG =====
+const SKIN={light:"#f2c9a0",tan:"#d39a6a",dark:"#8d5a3b",green:"#7ccf6a",blue:"#8fb8ff",gray:"#a7afc0",red:"#e0605a",gold:"#ffd36b"};
+const OUT={
+ tee:{t:"#3a7bd5",s:"#3a7bd5",p:"#2b3550"},
+ hoodie:{t:"#4b5266",s:"#4b5266",p:"#23283a",x:'<path d="M88 112 L100 126 L112 112" stroke="#2a2f40" stroke-width="3" fill="none"/><path d="M95 120v14M105 120v14" stroke="#e9eef8" stroke-width="2"/><rect x="82" y="146" width="36" height="14" rx="5" fill="#3d4357"/>'},
+ jersey:{t:"#1db954",s:"#1db954",p:"#e9eef8",x:'<text x="100" y="152" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" font-family="system-ui">10</text>'},
+ suit:{t:"#1c1f2b",s:"#1c1f2b",p:"#1c1f2b",x:'<path d="M90 110 L100 140 L110 110Z" fill="#f4f6fb"/><path d="M98 116 L102 116 L104 140 L100 146 L96 140Z" fill="#d42a3a"/>'},
+ ninja:{t:"#17171d",s:"#17171d",p:"#17171d",x:'<rect x="70" y="150" width="60" height="7" fill="#d42a3a"/><path d="M84 112 L100 136 L116 112" stroke="#2c2c36" stroke-width="3" fill="none"/>'},
+ armor:{t:"#8a93a8",s:"#6f7890",p:"#4a5163",x:'<path d="M74 122 Q100 132 126 122M74 138 Q100 148 126 138" stroke="#5b6378" stroke-width="2.5" fill="none"/><circle cx="100" cy="128" r="6" fill="#6ff2ff"/>'},
+ hero:{t:"#c0262d",s:"#1f4fbf",p:"#1f4fbf",x:'<circle cx="100" cy="132" r="13" fill="#ffd36b"/><text x="100" y="139" text-anchor="middle" font-size="17" font-weight="900" fill="#c0262d" font-family="system-ui">Q</text>'},
+ cyber:{t:"#101a30",s:"#101a30",p:"#0b1222",x:'<path d="M76 118 h16 v14 h16 v-14 h16" stroke="#6ff2ff" stroke-width="2" fill="none"/><path d="M80 152 h40" stroke="#ff5fdc" stroke-width="2"/>'},
+ lord:{t:"#24102f",s:"#24102f",p:"#120818",x:'<path d="M100 110 V168" stroke="#c9a24a" stroke-width="3"/><path d="M70 120 L130 120" stroke="#c9a24a" stroke-width="2"/><circle cx="100" cy="132" r="5" fill="#ff1f3d"/>'},
+ gold:{t:"#e3b341",s:"#c99a2e",p:"#8a6a1c",x:'<path d="M76 124 L100 140 L124 124" stroke="#fff1b0" stroke-width="3" fill="none"/>'}
+};
+function L_bg(id){const R={
+ void:'<rect width="200" height="240" fill="url(#cbg)"/>',
+ city:'<rect width="200" height="240" fill="#0b1636"/>'+[[0,120,30],[28,90,26],[52,140,22],[72,100,30],[150,110,24],[172,80,28],[128,130,24]].map(([x,y,w])=>`<rect x="${x}" y="${y}" width="${w}" height="${240-y}" fill="#141f3f"/>`+Array.from({length:6},(_,i)=>`<rect x="${x+4+(i%2)*10}" y="${y+8+Math.floor(i/2)*16}" width="5" height="6" fill="#ffd36b" opacity=".75"/>`).join("")).join(""),
+ space:'<rect width="200" height="240" fill="#05030f"/>'+Array.from({length:40},(_,i)=>`<circle cx="${(i*53)%200}" cy="${(i*97)%240}" r="${i%3?.8:1.6}" fill="#fff" opacity="${.4+(i%5)/10}"/>`).join("")+'<circle cx="160" cy="44" r="22" fill="#b46bff"/><ellipse cx="160" cy="44" rx="34" ry="7" fill="none" stroke="#e7d2ff" stroke-width="2"/>',
+ volcano:'<rect width="200" height="240" fill="url(#cvol)"/><path d="M0 240 L70 120 L90 128 L110 118 L130 126 L200 240Z" fill="#1a0b08"/><path d="M90 128 L100 160 L95 200 L104 240" stroke="#ff6a1a" stroke-width="4" fill="none"/>',
+ forest:'<rect width="200" height="240" fill="#071a12"/>'+[[10,170],[40,150],[150,155],[180,175],[120,180],[0,200],[190,205]].map(([x,y])=>`<path d="M${x} ${y-60} L${x+24} ${y} L${x-24} ${y}Z" fill="#0f3a24"/><rect x="${x-3}" y="${y}" width="6" height="40" fill="#2a1a10"/>`).join("")+'<circle cx="40" cy="40" r="14" fill="#e9f5d0" opacity=".8"/>',
+ neon:'<rect width="200" height="240" fill="#14052a"/>'+Array.from({length:9},(_,i)=>`<path d="M${100+(i-4)*12} 140 L${100+(i-4)*60} 240" stroke="#ff5fdc" stroke-opacity=".6"/>`).join("")+Array.from({length:6},(_,i)=>`<path d="M0 ${140+i*i*3+i*6} H200" stroke="#6ff2ff" stroke-opacity=".5"/>`).join("")+'<circle cx="100" cy="100" r="40" fill="#ff8a3d" opacity=".55"/>',
+ castle:'<rect width="200" height="240" fill="#16061e"/><circle cx="150" cy="46" r="20" fill="#ffe9c9" opacity=".9"/><path d="M0 240 V160 h14 v-10 h8 v10 h12 v-10 h8 v10 h14 V120 h10 v-12 h8 v12 h10 V240Z M200 240 V150 h-12 v-10 h-8 v10 h-12 v-10 h-8 v10 h-14 V240Z" fill="#07020a"/>',
+ gym:'<rect width="200" height="240" fill="#1a1d26"/><rect y="170" width="200" height="70" fill="#2a2f3c"/>'+[20,180].map(x=>`<rect x="${x-3}" y="40" width="6" height="130" fill="#444b5c"/>`).join("")+'<rect x="17" y="60" width="166" height="5" fill="#9aa3b5"/><text x="100" y="40" text-anchor="middle" font-size="14" font-weight="900" fill="#ff5f5f" font-family="system-ui">NO PAIN NO GAIN</text>'
+};return R[id]||R.void}
+function L_aura(id){if(id==="none")return"";const C={blue:"#2fa8ff",red:"#ff2a3a",gold:"#ffcc33",purple:"#a64bff",green:"#3fe39a",dark:"#5a0b2a",rainbow:"url(#crain)"};
+ if(id==="fire")return '<g filter="url(#cblur)" opacity=".85"><path d="M40 210 Q30 120 70 60 Q80 100 100 40 Q120 100 130 60 Q170 120 160 210Z" fill="#ff6a1a"/><path d="M60 210 Q55 140 85 100 Q100 130 115 100 Q145 140 140 210Z" fill="#ffd36b"/></g>';
+ return `<ellipse cx="100" cy="128" rx="72" ry="100" fill="${C[id]}" opacity=".55" filter="url(#cblur)"/>`}
+function L_cape(id){return OLx(L_cape0(id))}
+function L_cape0(id){if(id==="none")return"";const C={red:["#b3122a","#e0303f"],black:["#0b0b10","#2a2a36"],purple:["#4a1a7a","#7a3ac0"],gold:["#a8740a","#ffcf4a"],dark:["#1a0610","#5a0b2a"]};
+ if(id==="flame")return '<path d="M72 112 L128 112 L152 214 Q140 200 130 214 Q120 196 110 214 Q100 196 90 214 Q80 196 70 214 Q60 200 48 214Z" fill="#ff6a1a"/><path d="M80 120 L120 120 L136 200 L64 200Z" fill="#ffb347" opacity=".6"/>';
+ const [a,b]=C[id];return `<path d="M72 112 L128 112 L154 214 L46 214Z" fill="${a}"/><path d="M72 112 L128 112 L120 120 L80 120Z" fill="${b}"/>`}
+function shade(hex,amt){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const f=v=>Math.max(0,Math.min(255,Math.round(amt<0?v*(1+amt):v+(255-v)*amt)));return "#"+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+const OL='stroke="#0a0c14" stroke-opacity=".6" stroke-width="1.6" stroke-linejoin="round"';
+function L_body(eq){const o=OUT[eq.outfit]||OUT.tee;const sk=SKIN[eq.skin]||SKIN.light;const skd=shade(sk,-.22);
+ const legL='M80 164 L97 164 L96 204 Q88 207 80 204Z',legR='M103 164 L120 164 L120 204 Q112 207 104 204Z';
+ const armL='M74 112 Q58 112 56 128 L54 160 Q61 165 69 160 L71 132 Z',armR='M126 112 Q142 112 144 128 L146 160 Q139 165 131 160 L129 132 Z';
+ const torso='M74 118 Q74 106 88 105 L112 105 Q126 106 126 118 L127 166 Q100 174 73 166Z';
+ return `<path d="${legL}" fill="${o.p}" ${OL}/><path d="${legR}" fill="${o.p}" ${OL}/>
+ <path d="${legL}" fill="url(#cshH)"/><path d="${legR}" fill="url(#cshH)"/>
+ <path d="M84 184 q4 2 8 0 M108 184 q4 2 8 0" stroke="#000" stroke-opacity=".25" stroke-width="1.4" fill="none"/>
+ <path d="${armL}" fill="${o.s}" ${OL}/><path d="${armR}" fill="${o.s}" ${OL}/>
+ <path d="${armL}" fill="url(#cshH)"/><path d="${armR}" fill="url(#cshH)"/>
+ <path d="M55 154 Q62 158 70 154" stroke="#000" stroke-opacity=".25" stroke-width="2" fill="none"/><path d="M130 154 Q138 158 145 154" stroke="#000" stroke-opacity=".25" stroke-width="2" fill="none"/>
+ <circle cx="62" cy="166" r="8.5" fill="${sk}" ${OL}/><circle cx="138" cy="166" r="8.5" fill="${sk}" ${OL}/>
+ <ellipse cx="67" cy="162" rx="3" ry="4" fill="${sk}" ${OL}/><ellipse cx="133" cy="162" rx="3" ry="4" fill="${sk}" ${OL}/>
+ <circle cx="59" cy="163" r="3" fill="#fff" opacity=".25"/><circle cx="135" cy="163" r="3" fill="#fff" opacity=".25"/>
+ <rect x="91" y="96" width="18" height="14" rx="4" fill="${sk}"/><rect x="91" y="96" width="18" height="8" fill="${skd}" opacity=".7"/>
+ <path d="${torso}" fill="${o.t}" ${OL}/><path d="${torso}" fill="url(#cshH)"/><path d="${torso}" fill="url(#cshV)"/>
+ <path d="M90 105 Q100 113 110 105" stroke="${shade(o.t,-.35)}" stroke-width="2.5" fill="none"/>
+ <rect x="74" y="160" width="52" height="7" rx="3" fill="${shade(o.p,-.35)}"/><rect x="96" y="159.5" width="8" height="8" rx="2" fill="#c9a24a"/>
+ ${o.x||""}`}
+function L_shoes(id){const S={sneakers:'<rect x="76" y="198" width="24" height="11" rx="5" fill="#f4f6fb"/><rect x="100" y="198" width="24" height="11" rx="5" fill="#f4f6fb"/><path d="M80 203h14M104 203h14" stroke="#e0303f" stroke-width="2"/>',
+ boots:'<rect x="77" y="188" width="22" height="21" rx="5" fill="#6b3f1f"/><rect x="101" y="188" width="22" height="21" rx="5" fill="#6b3f1f"/>',
+ combat:'<rect x="77" y="186" width="22" height="23" rx="4" fill="#1a1c22"/><rect x="101" y="186" width="22" height="23" rx="4" fill="#1a1c22"/><path d="M80 192h14M80 197h14M104 192h14M104 197h14" stroke="#555" stroke-width="1.5"/>',
+ gold:'<rect x="76" y="196" width="24" height="13" rx="6" fill="#ffcf4a" stroke="#a8740a"/><rect x="100" y="196" width="24" height="13" rx="6" fill="#ffcf4a" stroke="#a8740a"/>',
+ rocket:'<path d="M80 210 L86 230 L92 210Z M104 210 L110 230 L116 210Z" fill="#ff8a1a"/><rect x="76" y="196" width="24" height="14" rx="5" fill="#9aa3b5"/><rect x="100" y="196" width="24" height="14" rx="5" fill="#9aa3b5"/>',
+ neon:'<rect x="76" y="198" width="24" height="11" rx="5" fill="#0b0f1e" stroke="#6ff2ff" stroke-width="2"/><rect x="100" y="198" width="24" height="11" rx="5" fill="#0b0f1e" stroke="#ff5fdc" stroke-width="2"/>'};return (S[id]||S.sneakers).replace(/<rect (?![^>]*stroke=)/g,'<rect stroke="#0a0c14" stroke-opacity=".6" stroke-width="1.5" ')+'<path d="M80 200 h8 M104 200 h8" stroke="#fff" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/>'}
+const HAIRC="#3a2416";
+function L_hairBack(id){return L_hairBack0(id).replace(/<(path|circle) /g,'<$1 stroke="#0a0c14" stroke-opacity=".5" stroke-width="1.5" ')}
+function L_hairBack0(id){if(id==="afro")return '<circle cx="100" cy="66" r="44" fill="#1b120c"/>';if(id==="long")return '<path d="M64 70 Q60 120 70 128 L130 128 Q140 120 136 70Z" fill="#e8c35a"/>';if(id==="pony")return '<path d="M130 60 Q156 70 150 112 Q142 92 128 80Z" fill="#b8402a"/>';if(id==="lordhair")return '<path d="M62 70 Q54 130 66 140 L134 140 Q146 130 138 70Z" fill="#d9dde8"/>';return""}
+function L_head(eq){const sk=SKIN[eq.skin]||SKIN.light;const skd=shade(sk,-.25);
+ const head='M100 38 C123 38 134 55 134 73 C134 94 120 106 100 106 C80 106 66 94 66 73 C66 55 77 38 100 38Z';
+ return `<ellipse cx="67" cy="78" rx="6.5" ry="8" fill="${sk}" ${OL}/><ellipse cx="133" cy="78" rx="6.5" ry="8" fill="${sk}" ${OL}/>
+ <path d="M66 75 q2 4 0 7 M134 75 q-2 4 0 7" stroke="${skd}" stroke-width="2" fill="none"/>
+ <path d="${head}" fill="${sk}" ${OL}/><path d="${head}" fill="url(#cshR)"/>
+ <ellipse cx="80" cy="91" rx="7" ry="4" fill="#ff6b7a" opacity=".28"/><ellipse cx="120" cy="91" rx="7" ry="4" fill="#ff6b7a" opacity=".28"/>
+ <path d="M100 82 Q97 90 99 92 Q101 93 103 92" stroke="${skd}" stroke-width="2" fill="none" stroke-linecap="round"/>`}
+function L_eyes(id){const brow='<path d="M80 66 Q88 62 95 66M105 66 Q112 62 120 66" stroke="#2a1a10" stroke-width="2.8" fill="none" stroke-linecap="round"/>';const E={
+ normal:brow+'<ellipse cx="88" cy="76" rx="6.5" ry="7.5" fill="#fff" stroke="#1b1f2b" stroke-width="1.2"/><ellipse cx="112" cy="76" rx="6.5" ry="7.5" fill="#fff" stroke="#1b1f2b" stroke-width="1.2"/><circle cx="89" cy="77" r="4.4" fill="url(#ciris)"/><circle cx="113" cy="77" r="4.4" fill="url(#ciris)"/><circle cx="89" cy="77" r="2" fill="#0b0d14"/><circle cx="113" cy="77" r="2" fill="#0b0d14"/><circle cx="90.6" cy="75" r="1.5" fill="#fff"/><circle cx="114.6" cy="75" r="1.5" fill="#fff"/><circle cx="87.6" cy="79" r=".7" fill="#fff"/><circle cx="111.6" cy="79" r=".7" fill="#fff"/><path d="M81.5 72 Q88 67 94.5 72M105.5 72 Q112 67 118.5 72" stroke="#0b0d14" stroke-width="2" fill="none" stroke-linecap="round"/>',
+ angry:'<ellipse cx="88" cy="78" rx="6" ry="5" fill="#fff"/><ellipse cx="112" cy="78" rx="6" ry="5" fill="#fff"/><circle cx="89" cy="79" r="3" fill="#1b1f2b"/><circle cx="111" cy="79" r="3" fill="#1b1f2b"/><path d="M80 68 L95 73M120 68 L105 73" stroke="#2a1a10" stroke-width="3.5" stroke-linecap="round"/>',
+ cool:brow+'<path d="M82 77 Q88 73 94 77M106 77 Q112 73 118 77" stroke="#1b1f2b" stroke-width="3" fill="none" stroke-linecap="round"/>',
+ laser:'<g filter="url(#cglow)"><ellipse cx="88" cy="76" rx="6" ry="5" fill="#ff2a3a"/><ellipse cx="112" cy="76" rx="6" ry="5" fill="#ff2a3a"/></g><circle cx="88" cy="76" r="2" fill="#fff"/><circle cx="112" cy="76" r="2" fill="#fff"/>',
+ cyber:brow+'<g filter="url(#cglow)"><rect x="80" y="72" width="16" height="7" rx="3" fill="#6ff2ff"/><rect x="104" y="72" width="16" height="7" rx="3" fill="#6ff2ff"/></g>',
+ star:brow+'<g fill="#ffd36b" stroke="#a8740a" stroke-width=".8"><path d="M88 69 L90 74 L95 74 L91 77 L93 82 L88 79 L83 82 L85 77 L81 74 L86 74Z"/><path d="M112 69 L114 74 L119 74 L115 77 L117 82 L112 79 L107 82 L109 77 L105 74 L110 74Z"/></g>',
+ void:'<ellipse cx="88" cy="76" rx="7" ry="6" fill="#000"/><ellipse cx="112" cy="76" rx="7" ry="6" fill="#000"/><g filter="url(#cglow)"><circle cx="88" cy="76" r="2.4" fill="#b46bff"/><circle cx="112" cy="76" r="2.4" fill="#b46bff"/></g>'};
+ return (E[id]||E.normal)+'<path d="M91 95 Q100 102 109 95 Q100 99 91 95Z" fill="#7a2a2a" stroke="#5a1f1f" stroke-width="1.6" stroke-linejoin="round"/><path d="M94 96.5 Q100 98.5 106 96.5" stroke="#fff" stroke-width="1.4" fill="none" opacity=".9"/>'}
+function L_hair(id){const H={none:"",
+ short:`<path d="M68 70 Q68 38 100 38 Q132 38 132 70 Q122 52 100 54 Q78 52 68 70Z" fill="${HAIRC}"/>`,
+ spiky:'<path d="M68 70 L66 46 L78 54 L80 34 L92 48 L100 28 L108 48 L120 34 L122 54 L134 46 L132 70 Q100 52 68 70Z" fill="#14161c"/>',
+ long:'<path d="M66 72 Q66 36 100 36 Q134 36 134 72 Q120 50 100 52 Q80 50 66 72Z" fill="#e8c35a"/>',
+ mohawk:'<path d="M92 56 L94 18 L100 24 L106 18 L108 56Z" fill="#ff3a5a"/><path d="M68 66 Q70 50 92 46 L92 56 Q78 56 68 66Z M132 66 Q130 50 108 46 L108 56 Q122 56 132 66Z" fill="#2a2a30" opacity=".5"/>',
+ afro:'',
+ pony:'<path d="M68 70 Q68 38 100 38 Q132 38 132 70 Q122 52 100 54 Q78 52 68 70Z" fill="#b8402a"/>',
+ blue:'<path d="M66 72 Q62 34 100 34 Q140 34 134 72 Q126 48 104 50 Q96 62 80 58 Q72 62 66 72Z" fill="#3a8bff"/>',
+ lordhair:'<path d="M66 72 Q66 36 100 36 Q134 36 134 72 Q120 50 100 52 Q80 50 66 72Z" fill="#d9dde8"/>'};const h=H[id]||"";if(!h)return"";
+ return h.replace(/<path /g,'<path stroke="#0a0c14" stroke-opacity=".55" stroke-width="1.5" stroke-linejoin="round" ')+'<path d="M80 46 Q90 40 102 41" stroke="#fff" stroke-opacity=".35" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M110 42 Q118 44 123 50" stroke="#fff" stroke-opacity=".2" stroke-width="2" fill="none" stroke-linecap="round"/>'}
+function L_face(id){const F={none:"",
+ glasses:'<g fill="none" stroke="#1b1f2b" stroke-width="2.2"><circle cx="88" cy="76" r="9"/><circle cx="112" cy="76" r="9"/><path d="M97 76h6M79 74 L68 72M121 74 L132 72"/></g>',
+ shades:'<path d="M76 70 H98 V80 Q97 86 88 86 Q78 86 77 80Z M102 70 H124 V80 Q123 86 112 86 Q103 86 102 80Z" fill="#0b0d14"/><path d="M98 73h4" stroke="#0b0d14" stroke-width="3"/><path d="M80 73 l6 0" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>',
+ patch:'<path d="M70 62 L132 86" stroke="#111" stroke-width="2"/><ellipse cx="112" cy="76" rx="10" ry="9" fill="#111"/>',
+ ninja:'<path d="M70 84 Q100 80 130 84 L128 100 Q100 112 72 100Z" fill="#17171d"/>',
+ beard:'<path d="M70 82 Q72 112 100 114 Q128 112 130 82 Q124 98 112 96 Q100 104 88 96 Q76 98 70 82Z" fill="#3a2416"/>',
+ scar:'<path d="M106 62 L118 90M108 70 l6 -2M111 78 l6 -2" stroke="#b3122a" stroke-width="2.4" stroke-linecap="round"/>',
+ skull:'<path d="M72 84 Q100 80 128 84 L126 102 Q100 112 74 102Z" fill="#e9eef8"/><path d="M84 92v8M92 94v8M100 94v8M108 94v8M116 92v8" stroke="#1b1f2b" stroke-width="2"/>',
+ paint:'<path d="M76 84 l8 -2 l-2 6Z M124 84 l-8 -2 l2 6Z" fill="#ff3a5a"/><path d="M78 88 h10 M112 88 h10" stroke="#1b1f2b" stroke-width="2"/>'};return F[id]||""}
+function L_hat(id){return OLx(L_hat0(id))}
+function L_hat0(id){const H={none:"",
+ cap:'<path d="M68 62 Q70 32 100 32 Q130 32 132 62Z" fill="#2f6bff"/><path d="M98 60 Q120 56 146 62 Q130 68 100 64Z" fill="#1f4fbf"/><circle cx="100" cy="34" r="3" fill="#1f4fbf"/>',
+ crown:'<path d="M70 50 L72 24 L84 38 L100 18 L116 38 L128 24 L130 50Z" fill="#ffcf4a" stroke="#a8740a" stroke-width="1.5"/><circle cx="100" cy="40" r="4" fill="#e0303f"/><circle cx="84" cy="44" r="3" fill="#3a8bff"/><circle cx="116" cy="44" r="3" fill="#3fe39a"/>',
+ viking:'<path d="M66 60 Q66 30 100 30 Q134 30 134 60Z" fill="#8a93a8" stroke="#5b6378"/><path d="M66 56 Q48 46 50 22 Q58 40 72 46Z M134 56 Q152 46 150 22 Q142 40 128 46Z" fill="#f4ecd8"/><path d="M66 56 H134" stroke="#c9a24a" stroke-width="4"/>',
+ wizard:'<path d="M64 56 Q100 46 136 56 L104 -4 Z" fill="#4a1a7a"/><path d="M58 58 Q100 46 142 58 Q100 66 58 58Z" fill="#3a1060"/><g fill="#ffd36b"><circle cx="98" cy="30" r="2.5"/><circle cx="108" cy="44" r="2"/><circle cx="92" cy="46" r="1.6"/></g>',
+ headband:'<path d="M67 56 Q100 46 133 56 L133 64 Q100 54 67 64Z" fill="#e0303f"/><path d="M133 58 Q148 62 152 76 M133 62 Q144 70 144 84" stroke="#e0303f" stroke-width="4" fill="none" stroke-linecap="round"/>',
+ halo:'<ellipse cx="100" cy="26" rx="26" ry="7" fill="none" stroke="#ffd36b" stroke-width="4" filter="url(#cglow)"/>',
+ horns:'<path d="M74 50 Q62 30 70 14 Q74 34 86 44Z M126 50 Q138 30 130 14 Q126 34 114 44Z" fill="#c0262d"/>',
+ lordcrown:'<path d="M66 56 L62 20 L76 42 L84 12 L94 40 L100 4 L106 40 L116 12 L124 42 L138 20 L134 56 Q100 46 66 56Z" fill="#2b2433" stroke="#8a8296" stroke-width="1.2"/><path d="M100 44 L105 50 L100 56 L95 50Z" fill="#ff1f3d" filter="url(#cglow)"/>',
+ helmet:'<path d="M64 74 Q62 30 100 30 Q138 30 136 74 L128 74 Q128 50 100 48 Q72 50 72 74Z" fill="#4b566f" stroke="#a9b4cc"/><path d="M96 30 L104 30 L102 50 L98 50Z" fill="#c4cde0"/>',
+ bunny:'<path d="M84 44 Q76 6 88 4 Q96 10 92 44Z M108 44 Q104 10 112 4 Q124 6 116 44Z" fill="#f4f6fb" stroke="#d6dbe6"/><path d="M86 40 Q82 14 88 10 M112 40 Q116 14 112 10" stroke="#ffb3c7" stroke-width="3" fill="none"/>'};return H[id]||""}
+function L_neck(id){return OLx(L_neck0(id))}
+function L_neck0(id){const N={none:"",
+ chain:'<path d="M86 108 Q100 128 114 108" stroke="#ffcf4a" stroke-width="3" fill="none" stroke-dasharray="3 2"/><circle cx="100" cy="124" r="5" fill="#ffcf4a"/>',
+ medal:'<path d="M90 108 L100 128 L110 108" stroke="#e0303f" stroke-width="5" fill="none"/><circle cx="100" cy="132" r="8" fill="#ffcf4a" stroke="#a8740a" stroke-width="1.5"/><text x="100" y="136" text-anchor="middle" font-size="9" font-weight="900" fill="#a8740a" font-family="system-ui">1</text>',
+ tag:'<path d="M88 108 Q100 124 112 108" stroke="#b8c0cf" stroke-width="1.5" fill="none"/><rect x="95" y="118" width="10" height="14" rx="2" fill="#c9d0de" stroke="#8a93a8"/>',
+ amulet:'<path d="M86 108 Q100 124 114 108" stroke="#c9a24a" stroke-width="2" fill="none"/><path d="M100 118 L107 126 L100 136 L93 126Z" fill="#a64bff" stroke="#c9a24a" filter="url(#cglow)"/>',
+ scarf:'<path d="M78 106 Q100 118 122 106 L122 116 Q100 126 78 116Z" fill="#e0303f"/><path d="M110 114 L114 140 L104 140 L102 118Z" fill="#c0262d"/>'};return N[id]||""}
+function L_weapon(id){return OLx(L_weapon0(id))}
+function L_weapon0(id){const W={none:"",
+ dumbbell:'<rect x="136" y="140" width="5" height="48" rx="2" fill="#9aa3b5"/><rect x="129" y="134" width="19" height="10" rx="3" fill="#2a2f3c"/><rect x="129" y="184" width="19" height="10" rx="3" fill="#2a2f3c"/>',
+ kettle:'<path d="M132 168 Q132 160 138 160 Q144 160 144 168" stroke="#2a2f3c" stroke-width="4" fill="none"/><circle cx="138" cy="182" r="12" fill="#2a2f3c"/><text x="138" y="186" text-anchor="middle" font-size="8" fill="#ffd36b" font-weight="900" font-family="system-ui">24</text>',
+ sword:'<path d="M135 156 L135 70 L138 62 L141 70 L141 156Z" fill="#dfe5f0" stroke="#8a93a8"/><rect x="127" y="154" width="22" height="5" rx="2" fill="#c9a24a"/><rect x="135" y="159" width="6" height="16" fill="#5a3a20"/><circle cx="138" cy="177" r="3.5" fill="#c9a24a"/>',
+ axe:'<rect x="135" y="80" width="6" height="100" rx="2" fill="#6b3f1f"/><path d="M141 84 Q170 92 166 118 Q156 108 141 110Z" fill="#b8c0cf" stroke="#6f7890"/><path d="M135 84 Q114 96 118 116 Q126 108 135 110Z" fill="#b8c0cf" stroke="#6f7890"/>',
+ staff:'<rect x="135" y="70" width="6" height="140" rx="3" fill="#5a3a20"/><circle cx="138" cy="66" r="10" fill="#6ff2ff" filter="url(#cglow)"/><circle cx="138" cy="66" r="4" fill="#fff"/>',
+ energy:'<rect x="135" y="158" width="6" height="20" rx="2" fill="#2b2433"/><rect x="128" y="154" width="20" height="5" rx="2" fill="#8a8296"/><path d="M136 154 Q120 120 132 70 Q150 110 142 154Z" fill="#ff6a1a" filter="url(#cglow)"/><path d="M138 150 Q128 122 134 86 Q144 116 141 150Z" fill="#ffd36b"/>',
+ hammer:'<rect x="135" y="96" width="6" height="84" rx="2" fill="#6b3f1f"/><rect x="120" y="78" width="36" height="22" rx="4" fill="#6f7890" stroke="#c4cde0"/><path d="M128 89h20" stroke="#6ff2ff" stroke-width="2" filter="url(#cglow)"/>',
+ trident:'<rect x="135" y="80" width="6" height="130" rx="2" fill="#c9a24a"/><path d="M126 86 L126 62 M138 82 L138 50 M150 86 L150 62 M126 86 H150" stroke="#ffcf4a" stroke-width="4" fill="none" stroke-linecap="round"/>'};return W[id]||""}
+function L_shield(id){return OLx(L_shield0(id))}
+function L_shield0(id){const S={none:"",
+ round:'<circle cx="58" cy="160" r="20" fill="#8a5a2a" stroke="#c9a24a" stroke-width="3"/><circle cx="58" cy="160" r="6" fill="#c9a24a"/>',
+ knight:'<path d="M40 138 L76 138 L74 166 Q70 182 58 188 Q46 182 42 166Z" fill="#1f4fbf" stroke="#dfe5f0" stroke-width="2.5"/><path d="M58 142 V184 M44 158 H72" stroke="#ffd36b" stroke-width="4"/>',
+ energy:'<circle cx="58" cy="160" r="22" fill="#6ff2ff" opacity=".25" stroke="#6ff2ff" stroke-width="2" filter="url(#cglow)"/>',
+ dark:'<path d="M40 136 L76 136 L72 170 L58 190 L44 170Z" fill="#1a0610" stroke="#ff1f3d" stroke-width="2"/><path d="M58 146 L64 162 L58 178 L52 162Z" fill="#ff1f3d" filter="url(#cglow)"/>'};return S[id]||""}
+function L_pet(id){return OLx(L_pet0(id))}
+function L_pet0(id){const P={none:"",
+ dog:'<ellipse cx="34" cy="212" rx="18" ry="11" fill="#b5793f"/><circle cx="20" cy="198" r="10" fill="#c98a4b"/><ellipse cx="13" cy="194" rx="4" ry="8" fill="#7a4a20"/><circle cx="17" cy="197" r="1.8" fill="#111"/><circle cx="12" cy="201" r="2" fill="#111"/><path d="M50 206 Q60 196 56 190" stroke="#b5793f" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="22" y="218" width="5" height="8" fill="#b5793f"/><rect x="40" y="218" width="5" height="8" fill="#b5793f"/>',
+ cat:'<ellipse cx="34" cy="214" rx="15" ry="10" fill="#8a93a8"/><circle cx="22" cy="200" r="10" fill="#9aa3b5"/><path d="M14 194 L14 182 L22 191Z M26 191 L32 182 L32 196Z" fill="#9aa3b5"/><circle cx="19" cy="199" r="1.8" fill="#3fe39a"/><circle cx="26" cy="199" r="1.8" fill="#3fe39a"/><path d="M48 212 Q62 206 58 190" stroke="#8a93a8" stroke-width="4" fill="none" stroke-linecap="round"/>',
+ dragon:'<path d="M20 196 Q8 176 30 180 Q22 188 30 196Z" fill="#2bb673" opacity=".8"/><path d="M48 196 Q62 172 40 180 Q46 188 40 196Z" fill="#2bb673" opacity=".8"/><ellipse cx="34" cy="210" rx="14" ry="12" fill="#3fe39a"/><circle cx="34" cy="192" r="10" fill="#3fe39a"/><path d="M28 184 L26 176 L31 182 M40 184 L42 176 L37 182" stroke="#ffd36b" stroke-width="2" fill="none"/><circle cx="30" cy="191" r="1.8" fill="#111"/><circle cx="38" cy="191" r="1.8" fill="#111"/><path d="M48 214 Q60 220 58 208" stroke="#3fe39a" stroke-width="4" fill="none" stroke-linecap="round"/>',
+ drone:'<g transform="translate(0 -8)"><path d="M14 186 H54" stroke="#6f7890" stroke-width="2"/><ellipse cx="14" cy="184" rx="9" ry="2" fill="#6ff2ff" opacity=".7"/><ellipse cx="54" cy="184" rx="9" ry="2" fill="#6ff2ff" opacity=".7"/><circle cx="34" cy="198" r="12" fill="#c4cde0" stroke="#6f7890"/><circle cx="34" cy="198" r="5" fill="#ff2a3a" filter="url(#cglow)"/></g>',
+ owl:'<ellipse cx="34" cy="206" rx="15" ry="18" fill="#8a5a2a"/><path d="M22 190 L20 182 L28 188 M46 190 L48 182 L40 188" fill="#8a5a2a" stroke="#8a5a2a" stroke-width="3"/><circle cx="28" cy="198" r="6" fill="#fff"/><circle cx="40" cy="198" r="6" fill="#fff"/><circle cx="28" cy="198" r="3" fill="#111"/><circle cx="40" cy="198" r="3" fill="#111"/><path d="M32 204 L34 208 L36 204Z" fill="#ffb347"/>',
+ ghost:'<path d="M20 222 V196 Q20 180 34 180 Q48 180 48 196 V222 L43 216 L38 222 L34 216 L29 222 L25 216Z" fill="#f4f6fb" opacity=".9"/><circle cx="29" cy="196" r="2.2" fill="#111"/><circle cx="39" cy="196" r="2.2" fill="#111"/>',
+ fox:'<ellipse cx="34" cy="214" rx="15" ry="9" fill="#ff7a2a"/><path d="M14 204 L18 186 L24 196 L34 196 L40 186 L44 204 Q30 214 14 204Z" fill="#ff8a3d"/><path d="M22 204 Q29 210 36 204" fill="#fff"/><circle cx="24" cy="200" r="1.6" fill="#111"/><circle cx="34" cy="200" r="1.6" fill="#111"/><path d="M48 214 Q64 214 60 198" stroke="#ff7a2a" stroke-width="6" fill="none" stroke-linecap="round"/>',
+ lordpet:'<path d="M12 196 Q22 182 34 194 Q46 182 56 196 Q46 192 34 204 Q22 192 12 196Z" fill="#1a0610"/><circle cx="30" cy="196" r="1.6" fill="#ff1f3d"/><circle cx="38" cy="196" r="1.6" fill="#ff1f3d"/>'};return P[id]||""}
+function OLx(s){return s.replace(/<(path|rect|circle|ellipse) (?![^>]*stroke=)(?![^>]*opacity=)/g,'<$1 stroke="#0a0c14" stroke-opacity=".55" stroke-width="1.4" stroke-linejoin="round" ')}
+function charSVG(eq,uid){uid=uid||"c";
+ const defs=`<defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121a33"/><stop offset="1" stop-color="#03050b"/></linearGradient><linearGradient id="cvol" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a0a08"/><stop offset="1" stop-color="#ff5a1a"/></linearGradient><linearGradient id="crain" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff5f7e"/><stop offset=".33" stop-color="#ffd36b"/><stop offset=".66" stop-color="#3fe39a"/><stop offset="1" stop-color="#6ff2ff"/></linearGradient><linearGradient id="cshH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".32"/></linearGradient><linearGradient id="cshV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient><radialGradient id="cshR" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient><radialGradient id="ciris" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#9ad0ff"/><stop offset=".6" stop-color="#3a7bd5"/><stop offset="1" stop-color="#1b3a7a"/></radialGradient><filter id="cblur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10"/></filter><filter id="cglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+ let s=`<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">${defs}${L_bg(eq.bg)}${L_aura(eq.aura)}<ellipse cx="100" cy="212" rx="50" ry="8" fill="#000" opacity=".45"/><ellipse cx="100" cy="211" rx="34" ry="4" fill="#000" opacity=".35"/>${L_cape(eq.cape)}${L_hairBack(eq.hair)}${L_body(eq)}${L_shoes(eq.shoes)}${L_neck(eq.neck)}${L_head(eq)}${L_eyes(eq.eyes)}${L_face(eq.face)}${L_hair(eq.hair)}${L_hat(eq.hat)}${L_weapon(eq.weapon)}${L_shield(eq.shield)}${L_pet(eq.pet)}</svg>`;
+ return s.replace(/id="(c[a-z]+)"/g,`id="$1_${uid}"`).replace(/url\(#(c[a-z]+)\)/g,`url(#$1_${uid})`)}
+
+// ===== Obchod =====
+const SLOTS=[["skin","🎨","Kůže"],["hair","💇","Vlasy"],["eyes","👀","Oči"],["face","😎","Obličej"],["hat","🎩","Hlava"],["outfit","👕","Oblečení"],["shoes","👟","Boty"],["neck","📿","Na krk"],["cape","🦸","Plášť"],["weapon","⚔️","Zbraň"],["shield","🛡️","Štít"],["pet","🐾","Mazlíček"],["aura","✨","Aura"],["bg","🌌","Pozadí"]];
+// [id, slot, název, cena, minimální rank (index)]
+const ITEMS=[
+["light","skin","Světlá",0],["tan","skin","Opálená",40],["dark","skin","Tmavá",40],["green","skin","Mimozemšťan",90],["blue","skin","Kyborg modrá",90],["gray","skin","Kamenná",70],["red","skin","Démonická",150,4],["gold","skin","Zlatá",250,6],
+["short","hair","Krátké",0],["none","hair","Holá hlava",20],["spiky","hair","Ježek",60],["long","hair","Dlouhé blond",70],["mohawk","hair","Číro",90],["afro","hair","Afro",80],["pony","hair","Culík",70],["blue","hair","Modrý anime",120],["lordhair","hair","Stříbrné lordovské",180,5],
+["normal","eyes","Normální",0],["angry","eyes","Naštvané",40],["cool","eyes","V pohodě",40],["star","eyes","Hvězdičky",90],["cyber","eyes","Kyber",120],["laser","eyes","Laserové",160,3],["void","eyes","Temnota",200,5],
+["none","face","Nic",0],["glasses","face","Brýle",40],["shades","face","Sluneční brýle",80],["patch","face","Páska přes oko",70],["ninja","face","Ninja šátek",90],["beard","face","Plnovous",80],["scar","face","Jizva",60],["paint","face","Válečné barvy",70],["skull","face","Lebková maska",150,4],
+["none","hat","Nic",0],["cap","hat","Kšiltovka",50],["headband","hat","Čelenka",50],["bunny","hat","Zaječí uši",70],["viking","hat","Vikinská helma",130],["wizard","hat","Čarodějův klobouk",120],["helmet","hat","Rytířská helma",150,3],["horns","hat","Rohy",110],["halo","hat","Svatozář",140],["crown","hat","Královská koruna",220,6],["lordcrown","hat","Koruna temného lorda",300,7],
+["tee","outfit","Tričko",0],["hoodie","outfit","Mikina",60],["jersey","outfit","Dres 10",70],["suit","outfit","Oblek",120],["ninja","outfit","Ninja",110],["hero","outfit","Superhrdina Q",150],["cyber","outfit","Kyber kombinéza",160],["armor","outfit","Brnění",180,4],["gold","outfit","Zlatý oblek",250,6],["lord","outfit","Róba temného lorda",300,7],
+["sneakers","shoes","Tenisky",0],["boots","shoes","Kožené boty",40],["combat","shoes","Bojové boty",70],["neon","shoes","Neonky",90],["gold","shoes","Zlaté boty",150],["rocket","shoes","Raketové boty",200,5],
+["none","neck","Nic",0],["scarf","neck","Šála",40],["tag","neck","Vojenská známka",50],["chain","neck","Zlatý řetěz",110],["medal","neck","Medaile vítěze",130,2],["amulet","neck","Temný amulet",170,5],
+["none","cape","Nic",0],["red","cape","Červený plášť",90],["black","cape","Černý plášť",90],["purple","cape","Královský plášť",130],["gold","cape","Zlatý plášť",180,5],["flame","cape","Ohnivý plášť",220,6],["dark","cape","Plášť temnoty",260,7],
+["none","weapon","Nic",0],["dumbbell","weapon","Činka",50],["kettle","weapon","Kettlebell 24 kg",60],["sword","weapon","Meč",110],["axe","weapon","Sekera",120],["staff","weapon","Kouzelná hůl",130],["hammer","weapon","Hromové kladivo",180,4],["trident","weapon","Trojzubec",200,5],["energy","weapon","Ohnivá čepel",280,7],
+["none","shield","Nic",0],["round","shield","Dřevěný štít",50],["knight","shield","Rytířský štít",110],["energy","shield","Energetické pole",160,4],["dark","shield","Štít temnoty",220,7],
+["none","pet","Nic",0],["dog","pet","Pejsek",100],["cat","pet","Kočka",100],["fox","pet","Liška",120],["owl","pet","Sova",110],["ghost","pet","Duch",130],["drone","pet","Bojový dron",170,3],["dragon","pet","Dráček",250,6],["lordpet","pet","Netopýr temnoty",220,7],
+["none","aura","Nic",0],["blue","aura","Modrá",80],["green","aura","Zelená",80],["purple","aura","Fialová",100],["red","aura","Rudá",120],["gold","aura","Zlatá",160,4],["fire","aura","Ohnivá",200,5],["dark","aura","Temná",220,7],["rainbow","aura","Duhová",250,8],
+["void","bg","Temnota",0],["gym","bg","Posilovna",60],["city","bg","Noční město",80],["forest","bg","Les",80],["neon","bg","Neon",110],["space","bg","Vesmír",140],["volcano","bg","Sopka",160,4],["castle","bg","Hrad temného lorda",220,7]
+];
+const DEFAULT_EQ={skin:"light",hair:"short",eyes:"normal",face:"none",hat:"none",outfit:"tee",shoes:"sneakers",neck:"none",cape:"none",weapon:"none",shield:"none",pet:"none",aura:"none",bg:"void"};
+
+const CATINFO={"Síla":{c:"#ff7a7a",e:"💪"},"Sociální":{c:"#6ff2ff",e:"🗣️"},"Strach":{c:"#ffb347",e:"😨"},"Běh":{c:"#5dffa8",e:"🏃"}};
+const CATS=Object.keys(CATINFO);
+const DIFFS=[["lehka","Lehká",.5,"pro start"],["normal","Normální",1,"standard"],["tezka","Těžká",1.5,"×1,5"],["extrem","Extrém",2,"×2 💀"]];
+const LEVELS=[[0,"Rekrut"],[5,"Kadet"],[15,"Bojovník"],[30,"Válečník"],[50,"Elitní agent"],[80,"Velitel"],[120,"Titán"],[180,"Diamantový hrdina"],[250,"Legenda Quboxu"],[365,"Kyborg Omega"]];
+const RCOL=[["#8b93a7","#4a5163","#c9d0de"],["#d08a4e","#7a4520","#f2c08f"],["#cfd8e6","#6f7a8e","#ffffff"],["#ffcf4a","#a8740a","#fff1b0"],["#3fe39a","#0d7a4c","#b8ffe0"],["#4aa3ff","#163f8f","#c8e4ff"],["#b77bff","#4f1f9a","#ead9ff"],["#7ff6ff","#0a7ea0","#ffffff"],["#ff5f7e","#8a1033","#ffd36b"],["#ff5fdc","#3b0f8a","#6ff2ff"]];
+const ROMAN=["I","II","III","IV","V","VI","VII","VIII","IX","X"];
+
+function badge(k,uid){const [a,b,h]=RCOL[k];const id="g"+uid+"_"+k;let shape,extra="";
+ const star=(cx,cy,r)=>{let p="";for(let i=0;i<10;i++){const ang=Math.PI/5*i-Math.PI/2,rr=i%2?r*.45:r;p+=(i?"L":"M")+(cx+rr*Math.cos(ang)).toFixed(1)+" "+(cy+rr*Math.sin(ang)).toFixed(1)}return p+"Z"};
+ if(k<=2)shape=`<circle cx="50" cy="52" r="34"/>`;
+ else if(k<=4)shape=`<path d="M50 14 L82 26 L80 56 Q76 78 50 90 Q24 78 20 56 L18 26Z"/>`;
+ else if(k<=6){let p="";for(let i=0;i<6;i++){const an=Math.PI/3*i-Math.PI/2;p+=(i?"L":"M")+(50+36*Math.cos(an)).toFixed(1)+" "+(52+36*Math.sin(an)).toFixed(1)}shape=`<path d="${p}Z"/>`}
+ else if(k===7)shape=`<path d="M50 12 L84 52 L50 92 L16 52Z"/>`;
+ else if(k===8)shape=`<path d="M50 18 L82 30 L80 58 Q76 80 50 92 Q24 80 20 58 L18 30Z"/>`;
+ else shape=`<path d="${star(50,52,40)}"/>`;
+ if(k>=3)extra+=`<g fill="${b}" stroke="${h}" stroke-width="1" opacity=".95"><path d="M18 46 L2 38 L6 52 L0 56 L14 62Z"/><path d="M82 46 L98 38 L94 52 L100 56 L86 62Z"/></g>`;
+ if(k>=5)extra+=`<g fill="${h}"><path d="${star(36,14,5)}"/><path d="${star(50,8,6)}"/><path d="${star(64,14,5)}"/></g>`;
+ if(k===8)extra+=`<path d="M32 22 L36 6 L44 16 L50 2 L56 16 L64 6 L68 22Z" fill="#ffd36b" stroke="#a8740a"/>`;
+ const center=k===9?`<text x="50" y="62" text-anchor="middle" font-size="28" font-weight="900" fill="#fff" font-family="Georgia,serif">Ω</text>`:`<text x="50" y="${k===7?59:60}" text-anchor="middle" font-size="${ROMAN[k].length>2?17:22}" font-weight="900" fill="${h}" font-family="Georgia,serif" stroke="${b}" stroke-width=".6">${ROMAN[k]}</text>`;
+ return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${h}"/><stop offset=".45" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><filter id="${id}f"><feGaussianBlur stdDeviation="2.5"/></filter></defs>
+ ${extra}<g fill="${a}" opacity=".45" filter="url(#${id}f)">${shape}</g><g fill="url(#${id})" stroke="${h}" stroke-width="2">${shape}</g>
+ <g transform="translate(50 52) scale(.72) translate(-50 -52)" fill="none" stroke="${b}" stroke-width="2.4" opacity=".8">${shape}</g>${center}</svg>`}
+
+const SAY=["Temný lord tě sleduje. Ukaž mu, co v tobě je. 😈","Dnešní BOSS čeká. Porazíš ho? 🔥","Dnes: síla, lidi, strach, běh. Žádné výmluvy. 🤖","Moje pancéřování je z titanu. Ukaž mi svoje. 💪","Každý splněný quest = krok k dalšímu ranku. Do práce! 🛡️","Analyzuji… tvůj den potřebuje trochu odvahy. ⚡","Kliky, lidi, strach a kilometry. Dnes to dáš."];
+const KEY="qubox_v2";let mem={};
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{days:{}}}catch(e){return mem.s||{days:{}}}}
+function save(){mem.s=S;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function dkey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function rng(seed){let h=1779033703^seed.length;for(let i=0;i<seed.length;i++){h=Math.imul(h^seed.charCodeAt(i),3432918353);h=h<<13|h>>>19}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+function shuf(r,a){for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let S=load();
+S.set=Object.assign({diff:"normal",cats:CATS.slice(),count:5,name:"",rr:1},S.set||{});
+S.notes=S.notes||{};S.bonus=S.bonus||0;S.spent=S.spent||0;S.owned=S.owned||[];S.eq=Object.assign({},DEFAULT_EQ,S.eq||{});S.codeUses=S.codeUses||0;
+const today=dkey(new Date());
+function pickDay(seed,n,cats,exclude){const r=rng(seed);const pools={};cats.forEach(c=>pools[c]=shuf(r,[...POOL.keys()].filter(i=>POOL[i][1]===c&&!exclude.includes(i))));
+ const order=shuf(r,cats.slice());const out=[];let k=0;
+ while(out.length<n&&k<200){const c=order[k%order.length];const x=pools[c].shift();if(x!==undefined)out.push(x);k++;if(k%order.length===0)shuf(r,order)}
+ return out}
+function newDay(){return {q:pickDay(today,S.set.count,S.set.cats,[]),done:[],rr:S.set.rr,v3:1,qn:{},boss:Math.floor(rng(today+"boss")()*BOSS.length),bossDone:false}}
+if(S.days[today]&&!S.days[today].v3){const k=S.days[today].done.length+(S.days[today].keep||0);S.days[today]=newDay();S.days[today].keep=k}
+if(!S.days[today])S.days[today]=newDay();
+const D=S.days[today];D.qn=D.qn||{};if(D.boss===undefined){D.boss=Math.floor(rng(today+"boss")()*BOSS.length);D.bossDone=false}save();
+
+function mult(){return (DIFFS.find(d=>d[0]===S.set.diff)||DIFFS[1])[2]}
+function scaleText(txt,cat){const m=mult();return txt.replace(/#(\d+(?:[.,]\d+)?)/g,(_,n)=>{const v=parseFloat(n.replace(",","."));let x=v*m;
+ if(cat==="Běh"&&v<15){x=Math.max(.5,Math.round(x*2)/2);return String(x).replace(".",",")}
+ if(x>=20)x=Math.round(x/5)*5;else x=Math.max(1,Math.round(x));return String(x)})}
+function questCount(){return Object.values(S.days).reduce((a,d)=>a+d.done.length+(d.keep||0)+(d.bossDone?1:0),0)}
+function earned(){return Object.values(S.days).reduce((a,d)=>a+(d.done.length+(d.keep||0))*10+(d.bossDone?30:0),0)+S.bonus}
+function total(){return earned()}
+function wallet(){return earned()-S.spent}
+function curRank(){return S.unlockAll?LEVELS.length-1:rankOf(questCount())}
+function streak(){let n=0;const d=new Date();const has=x=>x&&(x.done.length||(x.keep||0));if(!has(S.days[dkey(d)]))d.setDate(d.getDate()-1);while(has(S.days[dkey(d)])){n++;d.setDate(d.getDate()-1)}return n}
+function rankOf(N){let li=0;LEVELS.forEach((l,k)=>{if(N>=l[0])li=k});return li}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c])}
+function toast(t){const e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1500)}
+function modal(html){const m=document.getElementById("modal");document.getElementById("mbox").innerHTML=html;m.classList.add("show");m.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>m.classList.remove("show"))}
+let lastRank=curRank();
+
+function renderToday(){
+ const nm=S.set.name.trim();document.getElementById("hi").textContent=nm?("Ahoj, "+nm+"!"):"Ahoj!";
+ document.getElementById("date").textContent=new Date().toLocaleDateString("cs-CZ",{weekday:"long",day:"numeric",month:"long"});
+ document.getElementById("say").textContent=D.done.length>=D.q.length?"Všechno splněno! Jsi stroj. Zítra dostaneš nové. 🏆":SAY[Math.floor(rng(today)()*SAY.length)];
+ const T=total(),N=questCount(),li=curRank(),nx=LEVELS[li+1];
+ document.getElementById("rstrip").innerHTML=`<div class="bd">${badge(li,"s")}</div><div style="flex:1"><div class="sm" style="margin:0;letter-spacing:1.5px;font-size:11px">TVŮJ RANK</div><div class="nm">${LEVELS[li][1]}</div><div class="sm">${N} questů${nx?" · další rank za "+Math.max(0,nx[0]-N):" · MAX"}</div><div class="bar"><i style="width:${nx?Math.min(100,(N-LEVELS[li][0])/(nx[0]-LEVELS[li][0])*100):100}%"></i></div></div>`;
+ document.getElementById("rstrip").onclick=()=>show("ranky");
+ document.getElementById("sToday").textContent=D.done.length*10+(D.bossDone?30:0);
+ renderBoss();
+ document.getElementById("sTotal").textContent=wallet();
+ document.getElementById("sStreak").textContent=streak();
+ document.getElementById("diffPill").textContent=(DIFFS.find(d=>d[0]===S.set.diff)||DIFFS[1])[1]+" · "+D.done.length+"/"+D.q.length;
+ const L=document.getElementById("list");L.innerHTML="";
+ D.q.forEach(i=>{const [ic,cat,raw]=POOL[i];const done=D.done.includes(i);const note=D.qn[i]||"";const col=CATINFO[cat].c;
+  const el=document.createElement("div");el.className="q"+(done?" done":"");el.style.setProperty("--c",col);
+  el.innerHTML=`<div class="top"><div class="ic">${ic}</div><div class="t"><div class="cat">${cat}</div>${esc(scaleText(raw,cat))}</div><div class="chk">${done?"✓":""}</div></div>
+  ${note?`<div class="notePrev">📝 ${esc(note)}</div>`:""}
+  <div class="tools"><button class="nb">${note?"✏️ Upravit poznámku":"📝 Poznámka"}</button><span class="pt">+10 bodů</span></div>
+  <textarea placeholder="Poznámka k tomuhle questu…">${esc(note)}</textarea>`;
+  el.querySelector(".top").onclick=()=>{if(D.done.includes(i)){D.done=D.done.filter(x=>x!==i);toast("−10 bodů")}else{D.done.push(i);toast(D.done.length===D.q.length?"🏆 +10 · VŠECHNO HOTOVO!":"+10 bodů!")}save();checkRank();renderToday()};
+  const ta=el.querySelector("textarea");
+  el.querySelector(".nb").onclick=()=>{if(el.classList.toggle("open"))ta.focus();else renderToday()};
+  ta.oninput=()=>{const v=ta.value.trim();if(v)D.qn[i]=ta.value;else delete D.qn[i];save()};
+  L.appendChild(el)});
+ const rb=document.getElementById("reroll");document.getElementById("rr").textContent=D.rr;rb.disabled=D.rr<1||D.done.length>=D.q.length;
+ const dn=document.getElementById("dayNote");if(document.activeElement!==dn)dn.value=S.notes[today]||"";
+}
+function checkRank(){const li=curRank();if(li>lastRank){modal(`<div class="bd">${badge(li,"m")}</div><div style="color:var(--mut);letter-spacing:2px;font-size:12px">NOVÝ RANK</div><div style="font-size:24px;font-weight:900;margin:4px 0 12px">${LEVELS[li][1]}</div><button class="primary" data-close style="width:100%">Pokračovat 💪</button>`)}lastRank=li}
+function renderRanks(){const N=questCount(),li=curRank();document.getElementById("rkCount").textContent=(S.unlockAll?"🔓 vše odemčeno · ":"")+N+" questů";
+ document.getElementById("ranks").innerHTML=LEVELS.map((l,k)=>{const nx=LEVELS[k+1];const st=k<li?"✅ Získáno":k===li?(nx?`Ještě ${Math.max(0,nx[0]-N)} questů do dalšího`:"Nejvyšší rank!"):`🔒 Za ${l[0]-N} questů`;
+  return `<div class="rk ${k===li?"me":k>li?"lock":""}"><div class="bd">${badge(k,"r")}</div><div><div class="nm">${l[1]}${k===li?'<span class="tag">TY</span>':""}</div><div class="sm">${l[0]} splněných questů</div><div class="sm">${st}</div></div></div>`}).join("")}
+function renderDenik(){const H=document.getElementById("hist");H.innerHTML="";const d=new Date();
+ for(let k=0;k<7;k++){const x=S.days[dkey(d)];const lab=k===0?"Dnes":d.toLocaleDateString("cs-CZ",{weekday:"short",day:"numeric",month:"numeric"});
+  const c=x?x.done.length+(x.keep||0)+(x.bossDone?1:0):0;H.insertAdjacentHTML("beforeend",`<div class="row"><span>${lab}</span><b>${x?c+" questů · "+((x.done.length+(x.keep||0))*10+(x.bossDone?30:0))+" b.":"—"}</b></div>`);d.setDate(d.getDate()-1)}
+ const keys=Object.keys(S.days).concat(Object.keys(S.notes)).filter((v,i,a)=>a.indexOf(v)===i).sort().reverse();
+ const out=keys.map(k=>{const dn=S.notes[k]||"";const qn=(S.days[k]&&S.days[k].qn)||{};const qs=Object.keys(qn).map(i=>"• "+(POOL[i]?POOL[i][2].replace(/#/g,"").slice(0,50):"quest")+": "+qn[i]).join("\n");
+  if(!dn.trim()&&!qs)return"";const dt=new Date(k+"T12:00:00").toLocaleDateString("cs-CZ",{weekday:"long",day:"numeric",month:"long"});
+  return `<div class="dnote"><div class="d">${dt}</div>${dn.trim()?`<div class="x">${esc(dn)}</div>`:""}${qs?`<div class="qn">${esc(qs)}</div>`:""}</div>`}).join("");
+ document.getElementById("notes").innerHTML=out||`<div class="empty">Zatím žádné poznámky. Piš je na kartě Dnes 📝</div>`}
+function seg(id,items,cur,on){const el=document.getElementById(id);el.innerHTML=items.map(x=>`<button data-v="${x[0]}" class="${(Array.isArray(cur)?cur.includes(x[0]):String(cur)===String(x[0]))?"on":""}">${x[1]}${x[2]?`<small>${x[2]}</small>`:""}</button>`).join("");el.querySelectorAll("button").forEach(b=>b.onclick=()=>on(b.dataset.v))}
+function renderSet(){
+ seg("diffSeg",DIFFS.map(d=>[d[0],d[1],d[3]]),S.set.diff,v=>{S.set.diff=v;save();renderSet();toast("Obtížnost: "+DIFFS.find(d=>d[0]===v)[1])});
+ seg("catSeg",CATS.map(c=>[c,CATINFO[c].e+" "+c]),S.set.cats,v=>{const c=S.set.cats;if(c.includes(v)){if(c.length===1){toast("Aspoň jedna kategorie musí zůstat");return}S.set.cats=c.filter(x=>x!==v)}else S.set.cats=CATS.filter(x=>c.includes(x)||x===v);save();renderSet()});
+ seg("cntSeg",[[3,"3"],[4,"4"],[5,"5"],[7,"7"]],S.set.count,v=>{S.set.count=+v;save();renderSet()});
+ seg("rrSeg",[[0,"0"],[1,"1"],[2,"2"],[3,"3"]],S.set.rr,v=>{S.set.rr=+v;save();renderSet()});
+ const n=document.getElementById("name");if(document.activeElement!==n)n.value=S.set.name}
+function show(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.id==="t-"+t));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));
+ ({dnes:renderToday,postava:renderChar,ranky:renderRanks,denik:renderDenik,nast:renderSet})[t]();window.scrollTo(0,0)}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.t));
+document.getElementById("dayNote").oninput=e=>{S.notes[today]=e.target.value;save();const s=document.getElementById("dnSaved");s.textContent="✓ Uloženo";clearTimeout(s.t);s.t=setTimeout(()=>s.textContent="",1200)};
+document.getElementById("name").oninput=e=>{S.set.name=e.target.value;save()};
+document.getElementById("reroll").onclick=()=>{if(D.rr<1)return;const open=D.q.filter(i=>!D.done.includes(i));if(!open.length)return;
+ const old=open[open.length-1];const cat=POOL[old][1];const opts=[...POOL.keys()].filter(i=>POOL[i][1]===cat&&!D.q.includes(i));if(!opts.length)return;
+ const nw=opts[Math.floor(Math.random()*opts.length)];D.q[D.q.indexOf(old)]=nw;delete D.qn[old];D.rr--;save();renderToday();toast("🎲 Nový quest!")};
+document.getElementById("regen").onclick=()=>{const kept=D.q.filter(i=>D.done.includes(i));const need=Math.max(0,S.set.count-kept.length);
+ const fresh=pickDay(today+"x"+Math.random(),need,S.set.cats,kept);D.q=kept.concat(fresh);D.rr=S.set.rr;save();toast("⚡ Dnešní questy aktualizované");show("dnes")};
+document.getElementById("wipe").onclick=()=>modal(`<div style="font-size:40px">⚠️</div><div style="font-weight:800;font-size:18px;margin:6px 0">Opravdu smazat všechno?</div><div style="color:var(--mut);font-size:14px;margin-bottom:14px">Body, ranky i poznámky zmizí a nejde to vrátit.</div><div style="display:flex;gap:8px"><button data-close style="flex:1">Zrušit</button><button class="danger" id="wipeYes" style="flex:1">Smazat</button></div>`)||setTimeout(()=>{const y=document.getElementById("wipeYes");if(y)y.onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}mem={};location.reload()}},0);
+function renderBoss(){const b=document.getElementById("boss");const txt=scaleText(BOSS[D.boss],"Síla");
+ b.className="boss"+(D.bossDone?" done":"");
+ b.innerHTML=`<div class="h"><span>😈 BOSS DNE</span><span>${D.bossDone?"✓ PORAŽEN":"+30 bodů"}</span></div><div class="t">${esc(txt)}</div><div class="s">${D.bossDone?"Temný lord je spokojen. Klepni pro zrušení.":"Nepovinná těžká výzva. Klepni, až ji dáš."}</div>`;
+ b.onclick=()=>{D.bossDone=!D.bossDone;save();toast(D.bossDone?"😈 BOSS PORAŽEN · +30":"−30 bodů");checkRank();renderToday()}}
+let curSlot="hat";
+function owned(it){return S.unlockAll||it[3]===0||S.owned.includes(it[1]+":"+it[0])}
+function renderChar(){document.getElementById("charBig").innerHTML=charSVG(S.eq,"big");document.getElementById("wal").textContent=wallet();
+ const sl=document.getElementById("slots");sl.innerHTML=SLOTS.map(s=>`<button data-s="${s[0]}" class="${s[0]===curSlot?"on":""}">${s[1]} ${s[2]}</button>`).join("");
+ sl.querySelectorAll("button").forEach(b=>b.onclick=()=>{curSlot=b.dataset.s;renderChar()});
+ const li=curRank();const G=document.getElementById("grid");
+ G.innerHTML=ITEMS.filter(it=>it[1]===curSlot).map((it,k)=>{const own=owned(it),eq=S.eq[it[1]]===it[0],need=it[4]||0,locked=!own&&li<need;
+  const prev=Object.assign({},S.eq,{[it[1]]:it[0]});
+  return `<div class="it ${own?"own":""} ${eq?"eq":""} ${locked?"lock":""}" data-k="${it[1]}:${it[0]}"><div class="pv">${charSVG(prev,"i"+k)}</div><div class="nm">${it[2]}</div><div class="pr">${eq?"✓ Nasazeno":own?"Vlastníš":locked?"🔒 Rank "+LEVELS[need][1]:"💰 "+it[3]}</div></div>`}).join("");
+ G.querySelectorAll(".it").forEach(el=>el.onclick=()=>{const [slot,id]=el.dataset.k.split(":");const it=ITEMS.find(x=>x[1]===slot&&x[0]===id);
+  if(owned(it)){S.eq[slot]=id;save();renderChar();return}
+  const need=it[4]||0;if(curRank()<need){toast("🔒 Potřebuješ rank "+LEVELS[need][1]);return}
+  if(wallet()<it[3]){toast("💰 Chybí ti "+(it[3]-wallet())+" bodů");return}
+  modal(`<div class="charBig" style="width:150px;height:180px">${charSVG(Object.assign({},S.eq,{[slot]:id}),"buy")}</div><div style="font-weight:800;font-size:18px">${it[2]}</div><div style="color:var(--mut);margin:4px 0 14px">Koupit za <b style="color:#ffd36b">${it[3]} bodů</b>? Zbyde ti ${wallet()-it[3]}.</div><div style="display:flex;gap:8px"><button data-close style="flex:1">Zrušit</button><button class="primary" id="buyYes" style="flex:1">Koupit</button></div>`);
+  document.getElementById("buyYes").onclick=()=>{S.spent+=it[3];S.owned.push(slot+":"+id);S.eq[slot]=id;save();document.getElementById("modal").classList.remove("show");toast("🛍️ Koupeno: "+it[2]);renderChar()}})}
+const CODE_HASH="374b9ce6";
+function h32(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0).toString(16)}
+function openCode(){modal(`<div style="font-size:40px">🔑</div><div style="font-weight:800;font-size:18px;margin:4px 0 10px">Tajný kód</div><input type="text" id="codeIn" placeholder="Zadej kód" autocomplete="off" autocapitalize="off" style="text-align:center;margin-bottom:10px"><div style="display:flex;gap:8px"><button data-close style="flex:1">Zavřít</button><button class="primary" id="codeGo" style="flex:1">Použít</button></div><div id="codeMsg" style="font-size:13px;margin-top:10px;color:var(--mut)"></div>`);
+ const inp=document.getElementById("codeIn");setTimeout(()=>inp.focus(),50);
+ const go=()=>{const v=inp.value.trim().toLowerCase();if(h32(v)===CODE_HASH){S.bonus+=2000;S.codeUses++;S.unlockAll=true;save();lastRank=curRank();
+   document.getElementById("mbox").innerHTML=`<div class="bd" style="width:110px;height:110px;margin:0 auto">${badge(LEVELS.length-1,"code")}</div><div style="font-size:22px;font-weight:900;margin:6px 0">KÓD PŘIJAT ✅</div><div style="color:var(--mut);margin-bottom:14px">+2000 bodů · všechny ranky a všechny doplňky odemčené<br>Kód použit už ${S.codeUses}×</div><button class="primary" id="codeOk" style="width:100%">Paráda 😈</button>`;
+   document.getElementById("codeOk").onclick=()=>{document.getElementById("modal").classList.remove("show");show(document.querySelector("nav button.on").dataset.t)}}
+  else{document.getElementById("codeMsg").innerHTML='<span style="color:var(--red)">❌ Špatný kód</span>'}};
+ document.getElementById("codeGo").onclick=go;inp.onkeydown=e=>{if(e.key==="Enter")go()}}
+document.getElementById("keyBtn").onclick=openCode;document.getElementById("keyBtn2").onclick=openCode;
+const APP_LINK=(/^https?:/.test(location.protocol)&&!/claude/.test(location.hostname))?location.href.split("#")[0]:"https://claude.ai/artifact/WYYN4BnCy24cBFWTTYYcg9";
+if("serviceWorker" in navigator&&/^https:/.test(location.protocol)&&!/claude/.test(location.hostname)){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+let deferredPrompt=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e});
+function osName(){const u=navigator.userAgent;if(/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1))return"ios";if(/Android/.test(u))return"android";if(/Windows/.test(u))return"win";if(/Macintosh/.test(u))return"mac";return"other"}
+const STEPS={
+ ios:["Otevři Qubox v <b>Safari</b> (ne v aplikaci Claude) – zkopíruj odkaz tlačítkem níž a vlož ho do Safari.","Dole klepni na <b>Sdílet</b> (čtvereček se šipkou ↑).","Sjeď dolů a klepni na <b>Přidat na plochu</b>.","Vpravo nahoře klepni na <b>Přidat</b>. Hotovo! 😈"],
+ android:["Otevři Qubox v <b>Chrome</b> (ne v aplikaci Claude) – zkopíruj odkaz tlačítkem níž a vlož ho do Chrome.","Vpravo nahoře klepni na <b>⋮</b> (tři tečky).","Klepni na <b>Instalovat aplikaci</b> nebo <b>Přidat na plochu</b>.","Potvrď <b>Přidat / Instalovat</b>. Hotovo! 😈"],
+ win:["Otevři Qubox v <b>Edge</b> nebo <b>Chrome</b>.","Klikni na <b>⋯</b> / <b>⋮</b> vpravo nahoře.","Edge: <b>Aplikace → Nainstalovat tuto stránku jako aplikaci</b>. Chrome: <b>Uložit a sdílet → Vytvořit zástupce</b> a zaškrtni <b>Otevřít jako okno</b>.","Qubox máš na ploše a ve Start menu. 😈"],
+ mac:["Otevři Qubox v <b>Chrome</b> nebo <b>Safari</b>.","Chrome: <b>⋮ → Uložit a sdílet → Vytvořit zástupce</b> (zaškrtni Otevřít jako okno). Safari: <b>Soubor → Přidat do Docku</b>.","Qubox máš v Docku / Launchpadu. 😈"],
+ other:["Otevři Qubox v prohlížeči.","V menu prohlížeče najdi <b>Přidat na plochu</b> nebo <b>Instalovat aplikaci</b>."]};
+function installGuide(extra){const os=osName();const st=STEPS[os];
+ modal(`<div style="font-size:40px">📲</div><div style="font-weight:800;font-size:18px;margin:4px 0 12px">Přidat Qubox na plochu</div>${extra?`<div style="font-size:13px;color:var(--warn);margin-bottom:10px">${extra}</div>`:""}<div style="text-align:left">${st.map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:10px;font-size:14.5px;line-height:1.4"><b style="flex:none;width:24px;height:24px;border-radius:50%;background:#2a0a16;border:1px solid #ff1f3d;display:grid;place-items:center;font-size:12px">${i+1}</b><span>${s}</span></div>`).join("")}</div><button id="mCopy" style="width:100%;margin-bottom:8px">🔗 Kopírovat odkaz na Qubox</button><button class="primary" data-close style="width:100%">Rozumím</button>`);
+ document.getElementById("mCopy").onclick=copyLink}
+async function copyLink(){try{await navigator.clipboard.writeText(APP_LINK);toast("🔗 Odkaz zkopírován")}catch(e){modal(`<div style="font-weight:800;margin-bottom:8px">Zkopíruj odkaz ručně:</div><input type="text" readonly value="${APP_LINK}" onclick="this.select()" style="margin-bottom:12px"><button class="primary" data-close style="width:100%">Hotovo</button>`)}}
+document.getElementById("instBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();try{const r=await deferredPrompt.userChoice;if(r.outcome==="accepted")toast("😈 Qubox se instaluje!")}catch(e){}deferredPrompt=null;return}
+ if(window.matchMedia&&matchMedia("(display-mode: standalone)").matches){toast("✅ Qubox už máš jako aplikaci");return}
+ installGuide()};
+document.getElementById("copyLink").onclick=copyLink;
+let DL=null;try{if(window.claude&&claude.use)claude.use("downloads").then(d=>{DL=d}).catch(()=>{})}catch(e){}
+document.getElementById("dlBtn").onclick=async()=>{const html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+ if(DL){try{await DL.save({filename:"Qubox.html",data:html});toast("⬇️ Qubox.html stažen");return}catch(e){toast("Stahování zrušeno");return}}
+ try{const blob=new Blob([html],{type:"text/html"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="Qubox.html";document.body.appendChild(a);a.click();a.remove();toast("⬇️ Stahuju Qubox.html")}
+ catch(e){installGuide("Stažení tady nejde – přidej si Qubox na plochu podle kroků níž.")}};
+(function(){const os=osName();const h=document.getElementById("instHint");if(h)h.textContent={ios:"Máš iPhone – přidáš ho přes Safari → Sdílet → Přidat na plochu.",android:"Máš Android – přidáš ho přes Chrome → ⋮ → Instalovat aplikaci.",win:"Máš Windows – nainstaluješ ho přes Edge nebo Chrome jako aplikaci.",mac:"Máš Mac – přidáš ho do Docku přes Chrome nebo Safari."}[os]||h.textContent})();
+renderToday();
+</script>
+</body>
+</html>
